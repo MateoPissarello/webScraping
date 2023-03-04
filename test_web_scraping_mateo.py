@@ -6,6 +6,115 @@ from pprint import pprint
 def remove_space(string):
     return string.lstrip().rstrip().replace("\n", "")
 
+def get_nav(soup):
+    list_elements = []
+    nav_bar = soup.find("nav", attrs = {"class": "cmpt-nav row nowrap vert-align-middle absolute width-100 padding-horz-medium border-box"})
+    login_singup = nav_bar.find("div", attrs = {"class":"hidden xlarge-up-inline-block"}).find_all("a")
+    for i in login_singup:
+        text = i.text
+        url = i["href"]
+        data = {
+            "text": text,
+            "url": "http://classcentral.com"+url,
+        }
+        list_elements.append(data)
+    return list_elements
+def get_popularCourses(soup):
+    list_elements = []
+    popular_courses = soup.find("div", attrs = {"class":"width-100 medium-up-width-2-3 border-box medium-up-padding-left-large horz-align-right"})
+    subject_university_learn_more = popular_courses.find_all("a", attrs = {"class":"link-gray-underline"})
+    for i in subject_university_learn_more:
+        text = i.text
+        url = i["href"]
+        data = {
+            "text": text,
+            "url": "http://classcentral.com"+url,
+        }
+        list_elements.append(data)
+    li_popular_courses = popular_courses.find("ul", attrs = {"id": "home-subjects"}).find_all("li")
+    for li in li_popular_courses:
+        a = li.find("a")
+        url = a["href"]
+        try :
+            img = li.find("a").find("img")["src"]
+        except :
+            img = "no image available"
+        text = a.find("span").text
+        data = {
+            "url": url,
+            "img" : img,
+            "text" : text,
+        }
+        list_elements.append(data)
+    return list_elements
+
+def get_footer(soup):
+    list_elements = []
+    footer_div = soup.find("div", attrs = {"class":"width-page large-down-padding-horz-medium padding-vert-large border-box"})
+    ul_footer1 = footer_div.find_all("ul", attrs = {"class":"list-no-style text-2"})
+    ul_footer2 = footer_div.find_all("ul", attrs = {"class": "row list-no-style text-2"})
+    names_footer = footer_div.find_all("a", attrs = {"class": "inline-block margin-bottom-xxsmall text-2 color-charcoal weight-bold border-bottom border-gray hover-no-underline"})
+    name_browse_university=footer_div.find("a",attrs = {"class": "inline-block text-2 margin-bottom-xxsmall color-charcoal weight-bold border-bottom border-gray hover-no-underline"})
+    div_about_us = footer_div.find("div", attrs = {"class":"width-100 medium-up-width-3-5 margin-bottom-medium"})
+    text_about_us = "About class central:" + div_about_us.find("p").text
+    list_elements.append(text_about_us)
+    li_social_media = div_about_us.find("ul").find_all("li")
+    for li in li_social_media:
+        url = li.find("a")["href"]
+        name = li.find("a").text
+        data = {
+            "url": url,
+            "name_socialmedia": name,
+        }
+        list_elements.append(data)
+    
+    dataUniversity = {
+        "name": remove_space(name_browse_university.text),
+        "url": "http//classcentral.com" + name_browse_university["href"]
+    }
+    list_elements.append(dataUniversity)
+    for name in names_footer:
+        data = {
+            "name":remove_space(name.text),
+            "url": "http://classcentral.com" + name["href"]
+        }
+        list_elements.append(data)
+    for ul in ul_footer1:
+        li = ul.find_all("li")
+        for i in li:
+            url = i.find("a")["href"]
+            name = i.find("a").text
+            data = {
+                "url": url,
+                "name":name,
+            }
+            list_elements.append(data)
+    for ul in ul_footer2:
+        li = ul.find_all("li")
+        for i in li:
+            url = i.find("a")["href"]
+            name = i.find("a").text
+            data = {
+                "url": url,
+                "name":name,
+            }
+            list_elements.append(data)
+    return list_elements
+
+
+def get_all_collections(soup):
+    list_elements = []
+    collections = soup.find("ul", attrs = {"class":"list-no-style row wrap margin-bottom-xxlarge"}).find_all("li")
+
+    for collection in collections:
+        img = collection.find("a").find("img")["src"]
+        url = collection.find("a")["href"]
+        data = {
+            "img": img,
+            "url": "https://classcentral.com" + url,
+        }
+        list_elements.append(data)
+    return list_elements
 def get_all_buttons(soup):
     list_elements = []
     buttonsPurple = soup.find_all("a", attrs={"class":"btn-gradient-purple scale-on-hover"})
@@ -42,10 +151,12 @@ def get_data_courses_guides(soup):
         img = course.find("div", attrs={"class":"width-100 medium-up-width-1-3 horz-align-left row"}).find("a").find("img")["src"]
         link = course.find("div", attrs={"class":"width-100 medium-up-width-1-3 horz-align-left row"}).find("a")["href"]
         author = course.find("div", attrs={"class":"border-box width-100 medium-up-width-2-3 medium-up-padding-left-medium"}).find("p").find("strong").text
+        text = course.find("a", attrs = {"class":"head-3 medium-up-head-2 color-charcoal"}).text
         data = {
             "img_course": img,
             "link": link,
-            "author": author
+            "author": author,
+            "text": remove_space(text)
         } 
         list_elements.append(data)
     return list_elements
@@ -122,6 +233,10 @@ def get_data_all(soup):
     get_articles = get_data_article(soup)
     buttons = get_all_buttons(soup)
     courses = get_data_courses_guides(soup)
+    collections = get_all_collections(soup)
+    footer = get_footer(soup)
+    popularCourses = get_popularCourses(soup)
+    nav = get_nav(soup)
 
     data = {
         "universities": universities,
@@ -130,7 +245,11 @@ def get_data_all(soup):
         "ranks": ranks,
         "articles": get_articles,
         "buttons": buttons,
-        "courses": courses
+        "courses": courses,
+        "collections": collections,
+        "footer": footer,
+        "popularCourses": popularCourses,
+        "nav": nav
         }
     return data
 def get_data():
