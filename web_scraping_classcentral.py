@@ -326,13 +326,6 @@ def get_full_data(soup, xpath, type=None, index=None):
                 "img": a.find("img")["src"],
             }
             list_elements.append(data)
-    # if type == "viewRanks":
-    #     a = soup.find("a")
-    #     data = {
-    #         "url": "https://classcentral.com"+a["href"],
-    #         "text": a.find("span", attrs={"class":"text-1 weight-semi icon-chevron-right-charcoal icon-right-small color-charcoal"}).text
-    #     }
-    #    list_elements.append(data)
     if type == "imgs":
         imgs = soup.find_all("li")
         for i in imgs:
@@ -400,10 +393,5 @@ def get_data():
     headers = {"User-Agent": "My User Agent 1.0", "From": "youremail@domain.example"}
     r = requests.get("https://www.classcentral.com/", headers=headers)
     soup = BeautifulSoup(r.content, "html.parser")
-    x = get_data_all(soup)
-    return x
-    # get_data_nav(soup)
-
-
-# scrap = get_data()
-# pprint(scrap)
+    data = get_data_all(soup)
+    return data
