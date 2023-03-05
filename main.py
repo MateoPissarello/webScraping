@@ -10,6 +10,3 @@ async def class_central():
     data = get_data()
     return data
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", port=8000, reload=True)
-
