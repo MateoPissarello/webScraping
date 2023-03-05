@@ -1,15 +1,14 @@
-from fastapi import FastAPI
-import uvicorn
+from flask import Flask
 from web_scraping_classcentral import get_data
 
-app = FastAPI()
+app = Flask(__name__)
 
 
 @app.get("/class_central")
-async def class_central():
+def class_central():
     data = get_data()
     return data
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", port=8000, reload=True)
+    app.run(debug=True, port = 8000)
